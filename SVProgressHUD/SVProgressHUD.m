@@ -6,9 +6,14 @@
 //
 //  https://github.com/samvermette/SVProgressHUD
 //
+// Portions of code by Marcel Müller
+// Portions of code by Barrett Jacobsen
+
 
 #import "SVProgressHUD.h"
 #import <QuartzCore/QuartzCore.h>
+
+@class SVProgressBarView;
 
 @interface SVProgressHUD ()
 
@@ -19,13 +24,17 @@
 @property (nonatomic, readonly) UILabel *stringLabel;
 @property (nonatomic, readonly) UIImageView *imageView;
 @property (nonatomic, readonly) UIActivityIndicatorView *spinnerView;
+@property (nonatomic, readonly) SVProgressBarView *progressBarView;
 @property (nonatomic, assign) UIWindow *previousKeyWindow;
 @property (nonatomic, readonly) CGFloat visibleKeyboardHeight;
+@property (nonatomic, copy) NSString *displayString;
 
-- (void)showWithStatus:(NSString*)string maskType:(SVProgressHUDMaskType)hudMaskType networkIndicator:(BOOL)show;
+- (void)showWithStatus:(NSString*)string maskType:(SVProgressHUDMaskType)hudMaskType indicatorType:(SVProgressHUDIndicatorType)indicatorType networkIndicator:(BOOL)show;
 - (void)setStatus:(NSString*)string;
 - (void)registerNotifications;
 - (void)positionHUD;
+
+- (void)setProgress:(CGFloat)progress;
 
 - (void)dismiss;
 - (void)dismissWithStatus:(NSString*)string error:(BOOL)error;
@@ -36,9 +45,21 @@
 @end
 
 
+#pragma mark - SVProgressBarView Interface
+
+@interface SVProgressBarView : UIView {
+	CGFloat progress;
+}
+@property (nonatomic, assign) CGFloat progress;
+@end
+
+
+#pragma mark - SVProgressHud Implementation
+
+
 @implementation SVProgressHUD
 
-@synthesize hudView, maskType, showNetworkIndicator, fadeOutTimer, stringLabel, imageView, spinnerView, previousKeyWindow, visibleKeyboardHeight;
+@synthesize hudView, maskType, showNetworkIndicator, fadeOutTimer, stringLabel, imageView, spinnerView, progressBarView, previousKeyWindow, visibleKeyboardHeight, displayString;
 
 static SVProgressHUD *sharedView = nil;
 
@@ -54,6 +75,7 @@ static SVProgressHUD *sharedView = nil;
     [stringLabel release];
     [imageView release];
     [spinnerView release];
+    [progressBarView release];
     
     [super dealloc];
 }
@@ -67,6 +89,7 @@ static SVProgressHUD *sharedView = nil;
         [stringLabel release], stringLabel = nil;
         [imageView release], imageView = nil;
         [spinnerView release], spinnerView = nil;
+        [progressBarView release], progressBarView = nil;
     }
 }
 
@@ -111,7 +134,11 @@ static SVProgressHUD *sharedView = nil;
 }
 
 + (void)showWithStatus:(NSString*)status maskType:(SVProgressHUDMaskType)maskType networkIndicator:(BOOL)show {
-    [[SVProgressHUD sharedView] showWithStatus:status maskType:maskType networkIndicator:show];
+    [SVProgressHUD showWithStatus:status maskType:maskType indicatorType:SVProgressHUDIndicatorTypeSpinner networkIndicator:show];
+}
+
++ (void)showWithStatus:(NSString*)status maskType:(SVProgressHUDMaskType)maskType indicatorType:(SVProgressHUDIndicatorType)indicatorType networkIndicator:(BOOL)show {
+    [[SVProgressHUD sharedView] showWithStatus:status maskType:maskType indicatorType:indicatorType networkIndicator:show];
 }
 
 + (void)showSuccessWithStatus:(NSString *)string {
@@ -119,6 +146,10 @@ static SVProgressHUD *sharedView = nil;
     [SVProgressHUD dismissWithSuccess:string afterDelay:1];
 }
 
+#pragma mark - Progress Setting
++ (void)setProgress:(CGFloat)progress {
+    [SVProgressHUD sharedView].progress = progress;
+}
 
 #pragma mark - Deprecated show methods
 
@@ -211,6 +242,10 @@ static SVProgressHUD *sharedView = nil;
     }
 }
 
+- (void)setProgress:(CGFloat)progress {
+    self.progressBarView.progress = progress;
+}
+
 - (void)setStatus:(NSString *)string {
 	
     CGFloat hudWidth = 100;
@@ -239,20 +274,26 @@ static SVProgressHUD *sharedView = nil;
 	
 	self.hudView.bounds = CGRectMake(0, 0, hudWidth, hudHeight);
 	
+    self.progressBarView.bounds = CGRectMake(0, 0, self.hudView.bounds.size.width - 20, 20);
+    
 	self.imageView.center = CGPointMake(CGRectGetWidth(self.hudView.bounds)/2, 36);
 	
 	self.stringLabel.hidden = NO;
 	self.stringLabel.text = string;
 	self.stringLabel.frame = labelRect;
 	
-	if(string)
-		self.spinnerView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2)+0.5, 40.5);
-	else
+	if(string) {
+        self.spinnerView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2)+0.5, 40.5);
+        self.progressBarView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2)+0.5, 40.5);
+    }
+	else {
 		self.spinnerView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2)+0.5, ceil(self.hudView.bounds.size.height/2)+0.5);
+		self.progressBarView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2)+0.5, ceil(self.hudView.bounds.size.height/2)+0.5);
+    }
 }
 
 
-- (void)showWithStatus:(NSString*)string maskType:(SVProgressHUDMaskType)hudMaskType networkIndicator:(BOOL)show {
+- (void)showWithStatus:(NSString*)string maskType:(SVProgressHUDMaskType)hudMaskType indicatorType:(SVProgressHUDIndicatorType)indicatorType networkIndicator:(BOOL)show {
     
 	if(fadeOutTimer != nil)
 		[fadeOutTimer invalidate], [fadeOutTimer release], fadeOutTimer = nil;
@@ -266,7 +307,16 @@ static SVProgressHUD *sharedView = nil;
     self.maskType = hudMaskType;
 	
 	[self setStatus:string];
-	[self.spinnerView startAnimating];
+    
+    if (indicatorType == SVProgressHUDIndicatorTypeSpinner) {
+        self.progressBarView.hidden = YES;
+        self.spinnerView.hidden = NO;
+        [self.spinnerView startAnimating];
+    }
+    else if (indicatorType == SVProgressHUDIndicatorTypeProgressBar) {
+        self.spinnerView.hidden = YES;
+        self.progressBarView.hidden = NO;
+    }
     
     if(self.maskType != SVProgressHUDMaskTypeNone)
         self.userInteractionEnabled = YES;
@@ -399,6 +449,8 @@ static SVProgressHUD *sharedView = nil;
 	
 	[self.spinnerView stopAnimating];
     
+    self.progressBarView.hidden = YES;
+    
 	if(fadeOutTimer != nil)
 		[fadeOutTimer invalidate], [fadeOutTimer release], fadeOutTimer = nil;
 	
@@ -487,6 +539,16 @@ static SVProgressHUD *sharedView = nil;
     return spinnerView;
 }
 
+- (SVProgressBarView *)progressBarView {
+    
+    if (progressBarView == nil) {
+        progressBarView = [[SVProgressBarView alloc] init];
+		[self.hudView addSubview:progressBarView];
+    }
+    
+    return progressBarView;
+}
+
 - (CGFloat)visibleKeyboardHeight {
     
     NSAutoreleasePool *autoreleasePool = [[NSAutoreleasePool alloc] init];
@@ -523,3 +585,66 @@ static SVProgressHUD *sharedView = nil;
 }
 
 @end
+
+#pragma mark - SVProgressBarView Implementation
+
+@implementation SVProgressBarView
+@dynamic progress;
+
+- (id)init {
+    self = [super init];
+    
+    if (self) {
+        self.progress = 0.0f;
+        self.backgroundColor = [UIColor clearColor];
+    }
+    
+    return self;
+}
+
+- (void)setProgress:(CGFloat)newProgress {
+    progress = newProgress;
+    [self setNeedsDisplay];
+}
+
+- (CGFloat)progress {
+    return progress;
+}
+
+- (void)drawRect:(CGRect)rect {
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    // draw the "container"
+    CGRect rrect = CGRectInset(self.bounds, 2, 2);
+    CGFloat radius = 8;
+    CGFloat minx = CGRectGetMinX(rrect), midx = CGRectGetMidX(rrect), maxx = CGRectGetMaxX(rrect);
+    CGFloat miny = CGRectGetMinY(rrect), midy = CGRectGetMidY(rrect), maxy = CGRectGetMaxY(rrect);
+    CGContextMoveToPoint(ctx, minx, midy);
+    CGContextAddArcToPoint(ctx, minx, miny, midx, miny, radius);
+    CGContextAddArcToPoint(ctx, maxx, miny, maxx, midy, radius);
+    CGContextAddArcToPoint(ctx, maxx, maxy, midx, maxy, radius);
+    CGContextAddArcToPoint(ctx, minx, maxy, minx, midy, radius);
+    CGContextClosePath(ctx);
+    CGContextSetRGBStrokeColor(ctx, 1, 1, 1, 1);
+    CGContextSetLineWidth(ctx, 2);
+    CGContextDrawPath(ctx, kCGPathStroke);
+
+    // draw the actual bar
+    radius = 5;
+    rrect = CGRectInset(rrect, 3, 3);
+    rrect.size.width = rrect.size.width * progress;
+    minx = CGRectGetMinX(rrect), midx = CGRectGetMidX(rrect), maxx = CGRectGetMaxX(rrect);
+    miny = CGRectGetMinY(rrect), midy = CGRectGetMidY(rrect), maxy = CGRectGetMaxY(rrect);
+    CGContextMoveToPoint(ctx, minx, midy);
+    CGContextAddArcToPoint(ctx, minx, miny, midx, miny, radius);
+    CGContextAddArcToPoint(ctx, maxx, miny, maxx, midy, radius);
+    CGContextAddArcToPoint(ctx, maxx, maxy, midx, maxy, radius);
+    CGContextAddArcToPoint(ctx, minx, maxy, minx, midy, radius);
+    CGContextClosePath(ctx);
+    CGContextSetRGBFillColor(ctx, 1, 1, 1, 1);
+    CGContextDrawPath(ctx, kCGPathFill);
+}
+
+
+@end
+

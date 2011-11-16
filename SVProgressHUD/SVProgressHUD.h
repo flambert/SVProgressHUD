@@ -21,6 +21,15 @@ enum {
 
 typedef NSUInteger SVProgressHUDMaskType;
 
+
+enum {
+    SVProgressHUDIndicatorTypeSpinner = 1, // default spinner
+    SVProgressHUDIndicatorTypeProgressBar, // progress bar
+};
+
+typedef NSUInteger SVProgressHUDIndicatorType;
+
+
 @interface SVProgressHUD : UIWindow
 
 + (void)show;
@@ -28,6 +37,7 @@ typedef NSUInteger SVProgressHUDMaskType;
 + (void)showWithStatus:(NSString*)status networkIndicator:(BOOL)show;
 + (void)showWithStatus:(NSString*)status maskType:(SVProgressHUDMaskType)maskType;
 + (void)showWithStatus:(NSString*)status maskType:(SVProgressHUDMaskType)maskType networkIndicator:(BOOL)show;
++ (void)showWithStatus:(NSString*)string maskType:(SVProgressHUDMaskType)hudMaskType indicatorType:(SVProgressHUDIndicatorType)indicatorType networkIndicator:(BOOL)show;
 + (void)showWithMaskType:(SVProgressHUDMaskType)maskType;
 + (void)showWithMaskType:(SVProgressHUDMaskType)maskType networkIndicator:(BOOL)show;
 
@@ -39,6 +49,8 @@ typedef NSUInteger SVProgressHUDMaskType;
 + (void)dismissWithSuccess:(NSString*)successString afterDelay:(NSTimeInterval)seconds;
 + (void)dismissWithError:(NSString*)errorString; // also displays the error icon image
 + (void)dismissWithError:(NSString*)errorString afterDelay:(NSTimeInterval)seconds;
+
++ (void)setProgress:(CGFloat)progress;
 
 // deprecated Show methods: view and posY params will be ignored
 + (void)showInView:(UIView*)view DEPRECATED_ATTRIBUTE;

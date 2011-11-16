@@ -8,14 +8,18 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController {
+    CGFloat progress;
+}
 
 - (IBAction)show;
 - (IBAction)showWithStatus;
+- (IBAction)showWithProgress:(id)sender;
 
 - (IBAction)dismiss;
 - (IBAction)dismissSuccess;
 - (IBAction)dismissError;
 
+- (IBAction)increaseProgress:(id)sender;
 @end
 

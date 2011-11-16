@@ -27,6 +27,12 @@
 	[SVProgressHUD showWithStatus:@"Doing Stuff"];
 }
 
+- (IBAction)showWithProgress:(id)sender {
+    progress = 0.0f;
+    [SVProgressHUD setProgress:progress];
+	[SVProgressHUD showWithStatus:@"Progressing" maskType:SVProgressHUDMaskTypeNone indicatorType:SVProgressHUDIndicatorTypeProgressBar networkIndicator:NO];
+}
+
 
 #pragma mark -
 #pragma mark Dismiss Methods Sample
@@ -41,6 +47,17 @@
 
 - (void)dismissError {
 	[SVProgressHUD dismissWithError:@"Failed with Error"];
+}
+
+- (IBAction)increaseProgress:(id)sender {
+    progress += 0.1;
+    
+    if (progress >= 1.0) {
+        [SVProgressHUD dismissWithSuccess:@"Complete"];
+    }
+    else {
+        [SVProgressHUD setProgress:progress];
+    }
 }
 
 @end
