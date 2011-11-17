@@ -277,7 +277,7 @@ static SVProgressHUD *sharedView = nil;
 	
 	self.hudView.bounds = CGRectMake(0, 0, hudWidth, hudHeight);
 	
-    self.progressBarView.bounds = CGRectMake(0, 0, self.hudView.bounds.size.width - 20, 20);
+    self.progressBarView.bounds = CGRectMake(0, 0, ceil(self.hudView.bounds.size.width - 20), 20);
     
 	self.imageView.center = CGPointMake(CGRectGetWidth(self.hudView.bounds)/2, 36);
 	
@@ -287,11 +287,11 @@ static SVProgressHUD *sharedView = nil;
 	
 	if(string) {
         self.spinnerView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2)+0.5, 40.5);
-        self.progressBarView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2)+0.5, 40.5);
+        self.progressBarView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2), 40);
     }
 	else {
 		self.spinnerView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2)+0.5, ceil(self.hudView.bounds.size.height/2)+0.5);
-		self.progressBarView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2)+0.5, ceil(self.hudView.bounds.size.height/2)+0.5);
+		self.progressBarView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2), ceil(self.hudView.bounds.size.height/2));
     }
 }
 
