@@ -37,6 +37,8 @@
 
 - (void)setProgress:(CGFloat)progress;
 
+- (void)setProgress:(CGFloat)progress;
+
 - (void)dismiss;
 - (void)dismissWithStatus:(NSString*)string error:(BOOL)error;
 - (void)dismissWithStatus:(NSString*)string error:(BOOL)error afterDelay:(NSTimeInterval)seconds;
