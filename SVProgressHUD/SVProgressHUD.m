@@ -73,9 +73,6 @@ static SVProgressHUD *sharedView = nil;
 	
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
-    if (sharedView == self)
-        sharedView = nil;
-    
     [hudView release];
     [stringLabel release];
     [imageView release];
@@ -206,7 +203,6 @@ static SVProgressHUD *sharedView = nil;
 - (id)initWithFrame:(CGRect)frame {
 	
     if ((self = [super initWithFrame:frame])) {
-        self.windowLevel = UIWindowLevelAlert;
 		self.userInteractionEnabled = NO;
         self.backgroundColor = [UIColor clearColor];
 		self.alpha = 0;
