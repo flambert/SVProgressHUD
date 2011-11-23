@@ -105,10 +105,6 @@ h2. Automatic Reference Counting (ARC) support
 
 Maintaining an official ARC branch has proven to be too much work, often leading to confusion since the ARC branch is always a few commits behind. If you'd like to use SVProgressHUD in your ARC-enabled project, you'll have to "add the @-fno-objc-arc@ compiler flag":http://stackoverflow.com/questions/6646052/how-can-i-disable-arc-for-a-single-file-in-a-project to all of SVProgressHUD's files.
 
-h2. Automatic Referencing counting (ARC) support
-
-SVProgressHUD has an "ARC branch":https://github.com/samvermette/SVProgressHUD/tree/master-arc thanks to "bryanveloso":https://github.com/bryanveloso. If you'd like to use the non-arc version in your ARC project, you can disable ARC on a per-file basis by adding the @-fno-objc-arc@ compiler flag for those files (see "this StackOverflow thread":http://stackoverflow.com/questions/6646052/how-can-i-disable-arc-for-a-single-file-in-a-project for reference).
-
 h2. Credits
 
 SVProgressHUD is brought to you by "Sam Vermette":http://samvermette.com and "contributors to the project":https://github.com/samvermette/SVProgressHUD/contributors. If you have feature suggestions or bug reports, feel free to help out by sending pull requests or by "creating new issues":https://github.com/samvermette/SVProgressHUD/issues/new. If you're using SVProgressHUD in your project, attribution would be nice.
