@@ -15,6 +15,12 @@
 
 @class SVProgressBarView;
 
+#ifdef SVPROGRESSHUD_DISABLE_NETWORK_INDICATOR
+#define SVProgressHUDShowNetworkIndicator 0
+#else
+#define SVProgressHUDShowNetworkIndicator 1
+#endif
+
 @interface SVProgressHUD ()
 
 @property (nonatomic, readwrite) SVProgressHUDMaskType maskType;
@@ -37,8 +43,6 @@
 
 - (void)setProgress:(CGFloat)progress;
 
-- (void)setProgress:(CGFloat)progress;
-
 - (void)dismiss;
 - (void)dismissWithStatus:(NSString*)string error:(BOOL)error;
 - (void)dismissWithStatus:(NSString*)string error:(BOOL)error afterDelay:(NSTimeInterval)seconds;
@@ -48,21 +52,9 @@
 @end
 
 
-#pragma mark - SVProgressBarView Interface
-
-@interface SVProgressBarView : UIView {
-	CGFloat progress;
-}
-@property (nonatomic, assign) CGFloat progress;
-@end
-
-
-#pragma mark - SVProgressHud Implementation
-
-
 @implementation SVProgressHUD
 
-@synthesize hudView, maskType, showNetworkIndicator, fadeOutTimer, stringLabel, imageView, spinnerView, progressBarView, previousKeyWindow, visibleKeyboardHeight, displayString;
+@synthesize hudView, maskType, showNetworkIndicator, fadeOutTimer, stringLabel, imageView, spinnerView, previousKeyWindow, visibleKeyboardHeight;
 
 static SVProgressHUD *sharedView = nil;
 
@@ -77,7 +69,6 @@ static SVProgressHUD *sharedView = nil;
     [stringLabel release];
     [imageView release];
     [spinnerView release];
-    [progressBarView release];
     
     [super dealloc];
 }
@@ -91,7 +82,6 @@ static SVProgressHUD *sharedView = nil;
         [stringLabel release], stringLabel = nil;
         [imageView release], imageView = nil;
         [spinnerView release], spinnerView = nil;
-        [progressBarView release], progressBarView = nil;
     }
 }
 
@@ -284,7 +274,7 @@ static SVProgressHUD *sharedView = nil;
 	self.stringLabel.frame = labelRect;
 	
 	if(string) {
-        self.spinnerView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2)+0.5, 40.5);
+		self.spinnerView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2)+0.5, 40.5);
         self.progressBarView.center = CGPointMake(ceil(CGRectGetWidth(self.hudView.bounds)/2), 40);
     }
 	else {
@@ -312,7 +302,7 @@ static SVProgressHUD *sharedView = nil;
     if (indicatorType == SVProgressHUDIndicatorTypeSpinner) {
         self.progressBarView.hidden = YES;
         self.spinnerView.hidden = NO;
-        [self.spinnerView startAnimating];
+	[self.spinnerView startAnimating];
     }
     else if (indicatorType == SVProgressHUDIndicatorTypeProgressBar) {
         self.spinnerView.hidden = YES;
