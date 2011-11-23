@@ -33,7 +33,6 @@
 @property (nonatomic, readonly) SVProgressBarView *progressBarView;
 @property (nonatomic, assign) UIWindow *previousKeyWindow;
 @property (nonatomic, readonly) CGFloat visibleKeyboardHeight;
-@property (nonatomic, copy) NSString *displayString;
 
 - (void)showWithStatus:(NSString*)string maskType:(SVProgressHUDMaskType)hudMaskType indicatorType:(SVProgressHUDIndicatorType)indicatorType networkIndicator:(BOOL)show;
 - (void)setStatus:(NSString*)string;
@@ -51,10 +50,22 @@
 
 @end
 
+#pragma mark - SVProgressBarView Interface
+
+@interface SVProgressBarView : UIView {
+	CGFloat progress;
+}
+@property (nonatomic, assign) CGFloat progress;
+@end
+
+
+#pragma mark - SVProgressHud Implementation
+
+
 
 @implementation SVProgressHUD
 
-@synthesize hudView, maskType, showNetworkIndicator, fadeOutTimer, stringLabel, imageView, spinnerView, previousKeyWindow, visibleKeyboardHeight;
+@synthesize hudView, maskType, showNetworkIndicator, fadeOutTimer, stringLabel, imageView, spinnerView,progressBarView, previousKeyWindow, visibleKeyboardHeight;
 
 static SVProgressHUD *sharedView = nil;
 
@@ -69,6 +80,7 @@ static SVProgressHUD *sharedView = nil;
     [stringLabel release];
     [imageView release];
     [spinnerView release];
+    [progressBarView release];
     
     [super dealloc];
 }
@@ -82,6 +94,7 @@ static SVProgressHUD *sharedView = nil;
         [stringLabel release], stringLabel = nil;
         [imageView release], imageView = nil;
         [spinnerView release], spinnerView = nil;
+        [progressBarView release], progressBarView = nil;
     }
 }
 
