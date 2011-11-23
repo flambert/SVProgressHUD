@@ -50,7 +50,7 @@
 }
 
 - (IBAction)increaseProgress:(id)sender {
-    progress += 0.1;
+    progress += 0.05;
     
     if (progress >= 1.0) {
         [SVProgressHUD dismissWithSuccess:@"Complete"];

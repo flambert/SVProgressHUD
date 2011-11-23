@@ -669,7 +669,7 @@ static SVProgressHUD *sharedView = nil;
     // draw the actual bar
     radius = 5;
     rrect = CGRectInset(rrect, 3, 3);
-    rrect.size.width = rrect.size.width * progress;
+    rrect.size.width = rrect.size.width * (progress == 0.0 || progress >= 0.055 ? progress : 0.055); // progress bar looks funny for values > 0 but less than 0.055
     minx = CGRectGetMinX(rrect), midx = CGRectGetMidX(rrect), maxx = CGRectGetMaxX(rrect);
     miny = CGRectGetMinY(rrect), midy = CGRectGetMidY(rrect), maxy = CGRectGetMaxY(rrect);
     CGContextMoveToPoint(ctx, minx, midy);
