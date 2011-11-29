@@ -52,6 +52,7 @@ typedef NSUInteger SVProgressHUDIndicatorType;
 + (void)dismissWithError:(NSString*)errorString afterDelay:(NSTimeInterval)seconds;
 
 + (void)setProgress:(CGFloat)progress;
++ (CGFloat)progress;
 
 // deprecated Show methods: view and posY params will be ignored
 + (void)showInView:(UIView*)view DEPRECATED_ATTRIBUTE;

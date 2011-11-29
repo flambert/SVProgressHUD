@@ -41,6 +41,7 @@
 - (void)positionHUD:(NSNotification*)notification;
 
 - (void)setProgress:(CGFloat)progress;
+- (CGFloat)progress;
 
 - (void)dismiss;
 - (void)dismissWithStatus:(NSString*)string error:(BOOL)error;
@@ -151,9 +152,13 @@ static SVProgressHUD *sharedView = nil;
     [SVProgressHUD dismissWithSuccess:string afterDelay:1];
 }
 
-#pragma mark - Progress Setting
+#pragma mark - Progress
 + (void)setProgress:(CGFloat)progress {
     [SVProgressHUD sharedView].progress = progress;
+}
+
++ (CGFloat)progress {
+    return [SVProgressHUD sharedView].progress;
 }
 
 #pragma mark - Deprecated show methods
@@ -248,6 +253,10 @@ static SVProgressHUD *sharedView = nil;
 
 - (void)setProgress:(CGFloat)progress {
     self.progressBarView.progress = progress;
+}
+
+- (CGFloat)progress {
+    return self.progressBarView.progress;
 }
 
 - (void)setStatus:(NSString *)string {
