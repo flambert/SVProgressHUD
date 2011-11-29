@@ -32,6 +32,7 @@ SVProgressHUD is created as a singleton (i.e. it doesn't need to be explicitly a
 + (void)showWithStatus:(NSString*)status networkIndicator:(BOOL)show;
 + (void)showWithStatus:(NSString*)status maskType:(SVProgressHUDMaskType)maskType;
 + (void)showWithStatus:(NSString*)status maskType:(SVProgressHUDMaskType)maskType networkIndicator:(BOOL)show;
++ (void)showWithStatus:(NSString*)string maskType:(SVProgressHUDMaskType)hudMaskType indicatorType:(SVProgressHUDIndicatorType)indicatorType networkIndicator:(BOOL)show;
 + (void)showWithMaskType:(SVProgressHUDMaskType)maskType;
 + (void)showWithMaskType:(SVProgressHUDMaskType)maskType networkIndicator:(BOOL)show;
 </pre>
@@ -72,6 +73,28 @@ enum {
     SVProgressHUDMaskTypeGradient // disable user interactions, dim background UI with translucent radial gradient (a-la-alertView)
 };
 </pre>
+
+h3. Progress Bar
+
+!https://github.com/barrettj/SVProgressHUD/blob/master/ProgressBarSS.png?raw=true!
+
+
+By default, SVProgressHUD uses an indeterminate progress indicator (UIActivityIndicator).  If you want a progress bar, set the indicator to SVProgressHUDIndicatorTypeProgressBar
+
+<pre>
+enum {
+    SVProgressHUDIndicatorTypeSpinner = 1, // default spinner
+    SVProgressHUDIndicatorTypeProgressBar, // progress bar
+};
+</pre>
+
+You can then update the progress by calling
+
+<pre>
++ (void)setProgress:(CGFloat)progress;
+</pre>
+
+
 
 h3. Network activity indicator
 
