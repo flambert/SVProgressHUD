@@ -91,11 +91,6 @@ static SVProgressHUD *sharedView = nil;
     if(sharedView.superview == nil) {
         [[NSNotificationCenter defaultCenter] removeObserver:self];
         [sharedView release], sharedView = nil;
-        [hudView release], hudView = nil;
-        [stringLabel release], stringLabel = nil;
-        [imageView release], imageView = nil;
-        [spinnerView release], spinnerView = nil;
-        [progressBarView release], progressBarView = nil;
     }
 }
 
