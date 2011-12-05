@@ -38,8 +38,6 @@
 - (void)dismissWithStatus:(NSString*)string error:(BOOL)error;
 - (void)dismissWithStatus:(NSString*)string error:(BOOL)error afterDelay:(NSTimeInterval)seconds;
 
-- (void)memoryWarning:(NSNotification*)notification;
-
 @end
 
 
@@ -62,14 +60,6 @@ static SVProgressHUD *sharedView = nil;
     [spinnerView release];
     
     [super dealloc];
-}
-
-- (void)memoryWarning:(NSNotification *)notification {
-	
-    if(sharedView.superview == nil) {
-        [[NSNotificationCenter defaultCenter] removeObserver:self];
-        [sharedView release], sharedView = nil;
-    }
 }
 
 
@@ -312,11 +302,6 @@ static SVProgressHUD *sharedView = nil;
                                              selector:@selector(positionHUD:) 
                                                  name:UIApplicationDidChangeStatusBarOrientationNotification 
                                                object:nil];  
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-                                             selector:@selector(memoryWarning:) 
-                                                 name:UIApplicationDidReceiveMemoryWarningNotification
-                                               object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self 
                                              selector:@selector(positionHUD:) 
