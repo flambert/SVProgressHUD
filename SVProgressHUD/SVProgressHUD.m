@@ -35,6 +35,8 @@
 @property (nonatomic, assign) UIWindow *previousKeyWindow;
 @property (nonatomic, readonly) CGFloat visibleKeyboardHeight;
 
+@property (nonatomic, readonly) SVProgressBarView *progressBarView;
+
 - (void)showWithStatus:(NSString*)string maskType:(SVProgressHUDMaskType)hudMaskType indicatorType:(SVProgressHUDIndicatorType)indicatorType networkIndicator:(BOOL)show;
 - (void)setStatus:(NSString*)string;
 - (void)registerNotifications;
@@ -65,7 +67,7 @@
 
 @implementation SVProgressHUD
 
-@synthesize hudView, maskType, showNetworkIndicator, fadeOutTimer, stringLabel, imageView, spinnerView,progressBarView, previousKeyWindow, visibleKeyboardHeight;
+@synthesize hudView, maskType, showNetworkIndicator, fadeOutTimer, stringLabel, imageView, spinnerView, progressBarView, previousKeyWindow, visibleKeyboardHeight, overlayWindow;
 
 static SVProgressHUD *sharedView = nil;
 
