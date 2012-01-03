@@ -31,7 +31,7 @@ enum {
 typedef NSUInteger SVProgressHUDIndicatorType;
 
 
-@interface SVProgressHUD : UIWindow
+@interface SVProgressHUD : UIView
 
 + (void)show;
 + (void)showWithStatus:(NSString*)status;

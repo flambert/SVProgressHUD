@@ -26,11 +26,12 @@
 @property (nonatomic, readwrite) SVProgressHUDMaskType maskType;
 @property (nonatomic, readwrite) BOOL showNetworkIndicator;
 @property (nonatomic, retain) NSTimer *fadeOutTimer;
+
+@property (nonatomic, readonly) UIWindow *overlayWindow;
 @property (nonatomic, readonly) UIView *hudView;
 @property (nonatomic, readonly) UILabel *stringLabel;
 @property (nonatomic, readonly) UIImageView *imageView;
 @property (nonatomic, readonly) UIActivityIndicatorView *spinnerView;
-@property (nonatomic, readonly) SVProgressBarView *progressBarView;
 @property (nonatomic, assign) UIWindow *previousKeyWindow;
 @property (nonatomic, readonly) CGFloat visibleKeyboardHeight;
 
@@ -195,6 +196,7 @@ static SVProgressHUD *sharedView = nil;
 - (id)initWithFrame:(CGRect)frame {
 	
     if ((self = [super initWithFrame:frame])) {
+        [self.overlayWindow addSubview:self];
 		self.userInteractionEnabled = NO;
         self.backgroundColor = [UIColor clearColor];
 		self.alpha = 0;
@@ -295,6 +297,11 @@ static SVProgressHUD *sharedView = nil;
 	if(fadeOutTimer != nil)
 		[fadeOutTimer invalidate], [fadeOutTimer release], fadeOutTimer = nil;
 	
+    if(show)
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    else if(!show && self.showNetworkIndicator)
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+	
     self.showNetworkIndicator = show;
     
     if(self.showNetworkIndicator)
@@ -319,20 +326,8 @@ static SVProgressHUD *sharedView = nil;
         self.userInteractionEnabled = YES;
     else
         self.userInteractionEnabled = NO;
-    
-    if(![self isKeyWindow]) {
-        
-        [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            UIWindow *window = (UIWindow*)obj;
-            if(window.windowLevel == UIWindowLevelNormal && ![[window class] isEqual:[SVProgressHUD class]]) {
-                self.previousKeyWindow = window;
-                *stop = YES;
-            }
-        }];
-         
-        [self makeKeyAndVisible];
-    }
-    
+
+    [self.overlayWindow makeKeyAndVisible];
     [self positionHUD:nil];
     
 	if(self.alpha != 1) {
@@ -516,7 +511,7 @@ static SVProgressHUD *sharedView = nil;
 					 completion:^(BOOL finished){ 
                          if(sharedView.alpha == 0) {
                              [[NSNotificationCenter defaultCenter] removeObserver:sharedView];
-                             [sharedView.previousKeyWindow makeKeyWindow];
+                             [self.overlayWindow release];
                              [sharedView release], sharedView = nil;
                              
                              // uncomment to make sure UIWindow is gone from app.windows
@@ -527,8 +522,17 @@ static SVProgressHUD *sharedView = nil;
 
 #pragma mark - Getters
 
+- (UIWindow *)overlayWindow {
+    if(!overlayWindow) {
+        overlayWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        overlayWindow.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        overlayWindow.backgroundColor = [UIColor clearColor];
+        overlayWindow.userInteractionEnabled = NO;
+    }
+    return overlayWindow;
+}
+
 - (UIView *)hudView {
-    
     if(!hudView) {
         hudView = [[UIView alloc] initWithFrame:CGRectZero];
         hudView.layer.cornerRadius = 10;
@@ -538,12 +542,10 @@ static SVProgressHUD *sharedView = nil;
         
         [self addSubview:hudView];
     }
-    
     return hudView;
 }
 
 - (UILabel *)stringLabel {
-    
     if (stringLabel == nil) {
         stringLabel = [[UILabel alloc] initWithFrame:CGRectZero];
 		stringLabel.textColor = [UIColor whiteColor];
@@ -557,29 +559,24 @@ static SVProgressHUD *sharedView = nil;
         stringLabel.numberOfLines = 0;
 		[self.hudView addSubview:stringLabel];
     }
-    
     return stringLabel;
 }
 
 - (UIImageView *)imageView {
-    
     if (imageView == nil) {
         imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 28, 28)];
 		[self.hudView addSubview:imageView];
     }
-    
     return imageView;
 }
 
 - (UIActivityIndicatorView *)spinnerView {
-    
     if (spinnerView == nil) {
         spinnerView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
 		spinnerView.hidesWhenStopped = YES;
 		spinnerView.bounds = CGRectMake(0, 0, 37, 37);
 		[self.hudView addSubview:spinnerView];
     }
-    
     return spinnerView;
 }
 
@@ -599,7 +596,7 @@ static SVProgressHUD *sharedView = nil;
     
     UIWindow *keyboardWindow = nil;
     for (UIWindow *testWindow in [[UIApplication sharedApplication] windows]) {
-        if(![[testWindow class] isEqual:[UIWindow class]] && ![[testWindow class] isEqual:[SVProgressHUD class]]) {
+        if(![[testWindow class] isEqual:[UIWindow class]]) {
             keyboardWindow = testWindow;
             break;
         }
