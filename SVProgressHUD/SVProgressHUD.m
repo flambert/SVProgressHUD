@@ -73,9 +73,7 @@ static SVProgressHUD *sharedView = nil;
 
 - (void)dealloc {
 	
-	if(fadeOutTimer != nil)
-		[fadeOutTimer invalidate], [fadeOutTimer release], fadeOutTimer = nil;
-	
+	self.fadeOutTimer = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     [hudView release];
@@ -296,15 +294,7 @@ static SVProgressHUD *sharedView = nil;
 
 - (void)showWithStatus:(NSString*)string maskType:(SVProgressHUDMaskType)hudMaskType indicatorType:(SVProgressHUDIndicatorType)indicatorType networkIndicator:(BOOL)show {
     
-	if(fadeOutTimer != nil)
-		[fadeOutTimer invalidate], [fadeOutTimer release], fadeOutTimer = nil;
-	
-    if(show)
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-    else if(!show && self.showNetworkIndicator)
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-	
-    self.showNetworkIndicator = show;
+	self.fadeOutTimer = nil;
     
     if(self.showNetworkIndicator)
         [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
@@ -347,6 +337,15 @@ static SVProgressHUD *sharedView = nil;
 	}
     
     [self setNeedsDisplay];
+}
+
+- (void)setFadeOutTimer:(NSTimer *)newTimer {
+    
+    if(fadeOutTimer)
+        [fadeOutTimer invalidate], [fadeOutTimer release], fadeOutTimer = nil;
+    
+    if(newTimer)
+        fadeOutTimer = [newTimer retain];
 }
 
 
@@ -466,6 +465,7 @@ static SVProgressHUD *sharedView = nil;
 }
 
 
+
 - (void)dismissWithStatus:(NSString*)string error:(BOOL)error {
 	[self dismissWithStatus:string error:error afterDelay:0.9];
 }
@@ -489,13 +489,10 @@ static SVProgressHUD *sharedView = nil;
 	[self setStatus:string];
 	
 	[self.spinnerView stopAnimating];
+
+	self.progressBarView.hidden = YES;
     
-    self.progressBarView.hidden = YES;
-    
-	if(fadeOutTimer != nil)
-		[fadeOutTimer invalidate], [fadeOutTimer release], fadeOutTimer = nil;
-	
-	fadeOutTimer = [[NSTimer scheduledTimerWithTimeInterval:seconds target:self selector:@selector(dismiss) userInfo:nil repeats:NO] retain];
+	self.fadeOutTimer = [NSTimer scheduledTimerWithTimeInterval:seconds target:self selector:@selector(dismiss) userInfo:nil repeats:NO];
 }
 
 - (void)dismiss {
