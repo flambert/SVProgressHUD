@@ -509,51 +509,7 @@ static SVProgressHUD *sharedView = nil;
     
     [self setNeedsDisplay];
 }
-- (void)showWithStatus:(NSString*)string maskType:(SVProgressHUDMaskType)hudMaskType networkIndicator:(BOOL)show {
-    
-	self.fadeOutTimer = nil;
-	
-    if(show)
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-    else if(!show && self.showNetworkIndicator)
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-	
-    self.showNetworkIndicator = show;
-    
-    if(self.showNetworkIndicator)
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-	
-	self.imageView.hidden = YES;
-    self.maskType = hudMaskType;
-	
-	[self setStatus:string];
-	[self.spinnerView startAnimating];
-    
-    if(self.maskType != SVProgressHUDMaskTypeNone) {
-        self.overlayWindow.userInteractionEnabled = YES;
-    } else {
-        self.overlayWindow.userInteractionEnabled = NO;
-    }
-    
-    [self.overlayWindow makeKeyAndVisible];
-    [self positionHUD:nil];
-    
-	if(self.alpha != 1) {
-        [self registerNotifications];
-		self.hudView.transform = CGAffineTransformScale(self.hudView.transform, 1.3, 1.3);
-		
-		[UIView animateWithDuration:0.15
-							  delay:0
-							options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationCurveEaseOut | UIViewAnimationOptionBeginFromCurrentState
-						 animations:^{	
-							 self.hudView.transform = CGAffineTransformScale(self.hudView.transform, 1/1.3, 1/1.3);
-                             self.alpha = 1;
-						 }
-						 completion:NULL];
-	}
-    
-    [self setNeedsDisplay];
-}
+
 
 - (void)dismissWithStatus:(NSString*)string error:(BOOL)error {
 	[self dismissWithStatus:string error:error afterDelay:0.9];
